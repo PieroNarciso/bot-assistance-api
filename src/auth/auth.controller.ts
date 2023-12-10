@@ -1,27 +1,14 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async signIn(@Body() signInDto: { username: string; password: string }) {
-    const result = await this.authService.signIn(
-      signInDto.username,
-      signInDto.password,
-    );
-    if (result == null) {
-      throw new HttpException('User does not exist', HttpStatus.NOT_FOUND);
-    }
-    return result;
+  async login(@Request() req: any) {
+    return this.authService.login(req.user);
   }
 }
